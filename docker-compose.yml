@@ -4,9 +4,6 @@ services:
         build:
           context: .
           dockerfile: linebot.Dockerfile
-          cache:
-            - alpine
-            - mikejhan4455:v1.03-lo
         
         container_name: handler
         image: mikejhan4455/linebot:v1.04-lo
