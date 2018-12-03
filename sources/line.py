@@ -3,7 +3,7 @@ import re
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import (
     TextMessage, TextSendMessage, MessageEvent, TemplateSendMessage, ConfirmTemplate, PostbackAction, PostbackEvent,
-    StickerSendMessage, FollowEvent, UnfollowEvent
+    StickerSendMessage, FollowEvent, UnfollowEvent, StickerMessage, AudioSendMessage
 )
 import flask
 
@@ -64,7 +64,6 @@ handlers = {}
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     global handlers
-
     if event.message.type == 'text':
 
         user_id = event.source.user_id
@@ -168,9 +167,11 @@ def handle_message(event):
                 print('handle query: {q} -> {r}'.format(q=q, r=query_table[q]))
                 query_reply(event, q, query_table[q])
 
-    elif event.message.type == 'sticker':
-        line_bot_api.reply_message(event.reply_token,
-                                   StickerSendMessage(package_id='3', sticker_id='189'))
+
+@handler.add(MessageEvent, message=StickerMessage)
+def handler_sticker(event):
+    line_bot_api.reply_message(event.reply_token,
+    StickerSendMessage(package_id='3', sticker_id='189'))
 
 
 @handler.add(PostbackEvent)
@@ -255,4 +256,4 @@ def handle_unfollow(event):
 
 if __name__ == '__main__':
     load_user_list()
-    app.run(debug=True, port=3001)
+    app.run(host='127.0.0.1', debug=True, port=3001)

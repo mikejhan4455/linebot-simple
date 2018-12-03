@@ -18,21 +18,28 @@ class operation_handler:
 
 
 def load_user_list():
-    if 'user-list.json' not in os.listdir('.'):
-        os.system('touch user-list.json')
+    if './datas/user-list.json' not in os.listdir('.'):
+        os.system('touch ./datas/user-list.json')
 
-    with open('user-list.json', 'r') as file:
+    with open('./datas/user-list.json', 'r') as file:
         try:
             utils.user_list = json.load(file)
         except json.decoder.JSONDecodeError:
             utils.user_list = {}
+        finally:
+            # the Webhook verify user
+            utils.user_list['Udeadbeefdeadbeefdeadbeefdeadbeef'] = {
+                "name": "Webhook verify",
+                "query_table": {
+                }
+            }
             save_user_list()
 
     print('LOAD user list successful')
 
 
 def save_user_list():
-    with open('user-list.json', 'w') as file:
+    with open('./datas/user-list.json', 'w') as file:
         file.write(json.dumps(utils.user_list))
 
     print('SAVE user list successful')

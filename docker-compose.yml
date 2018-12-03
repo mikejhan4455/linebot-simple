@@ -1,0 +1,20 @@
+version: '3.3'
+services:
+    handler:
+        container_name: handler
+        image: mikejhan4455/linebot:v1.03-lo
+
+        env_file:
+            - ./env-file/linebot.env
+
+        depends_on:
+            - "ngrok-server"
+
+        network_mode: "container:ngrok-server"
+
+    ngrok-server:
+        container_name: ngrok-server
+        image: "wernight/ngrok"
+
+        env_file:
+            - ./env-file/ngrok.env
