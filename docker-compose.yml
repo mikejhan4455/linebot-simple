@@ -1,11 +1,19 @@
 version: '3.3'
 services:
     handler:
+        build:
+          context: .
+          dockerfile: linebot.Dockerfile
+          cache:
+            - alpine
+            - mikejhan4455:v1.03-lo
+        
         container_name: handler
-        image: mikejhan4455/linebot:v1.03-lo
+        image: mikejhan4455/linebot:v1.04-lo
 
         env_file:
-            - ./env-file/linebot.env
+            # - ./env-file/linebot.env
+            - ./env-file/obasan-linebot.env
 
         depends_on:
             - "ngrok-server"
@@ -18,3 +26,4 @@ services:
 
         env_file:
             - ./env-file/ngrok.env
+            - ./env-file/obasan-ngrok.env
