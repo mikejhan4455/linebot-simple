@@ -14,7 +14,7 @@
 
         paste the channel **access token & channel serect** of  your lineBOT
 
-        find it @  [line develop consol](https://developers.line.biz/console/)
+        find it @  [line develop console](https://developers.line.biz/console/)
 
         ```shell
         CHANNEL_ACCESS_TOKEN=<YOUR_LINEDEV_CHANNEL_ACCESS_TOKEN>

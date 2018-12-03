@@ -22,5 +22,5 @@ services:
         image: "wernight/ngrok"
 
         env_file:
-            - ./env-file/ngrok.env
+            # - ./env-file/ngrok.env
             - ./env-file/obasan-ngrok.env

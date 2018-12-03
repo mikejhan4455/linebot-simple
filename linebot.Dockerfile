@@ -4,7 +4,7 @@ MAINTAINER Chris Zhan mikejhan.net
 
 WORKDIR /app
 
-COPY ./sources/* /app/
+COPY ./sources/ /app/
 COPY ./requirements.txt /app/
 
 ENV CHANNEL_ACCESS_TOKEN=null
