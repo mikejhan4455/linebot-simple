@@ -67,6 +67,12 @@ def handle_message(event):
     if event.message.type == 'text':
 
         user_id = event.source.user_id
+
+        if user_id == 'Udeadbeefdeadbeefdeadbeefdeadbeef':
+            line_bot_api.reply_message(event.reply_token,
+                                           TextSendMessage(text='reply the webhook varification'))
+            return 
+
         user_text = event.message.text
         query_table = utils.user_list[user_id]['query_table']
 
