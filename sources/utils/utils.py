@@ -5,7 +5,10 @@ import inspect
 from linebot.models import (
     RichMenu, RichMenuSize, MessageAction, RichMenuArea, RichMenuBounds, TextSendMessage
 )
+from linebot.exceptions import LineBotApiError
 import utils
+
+rich_menu_id = 'richmenu-f72203c3d17a6f3eca7b3df839561bbf'
 
 
 class operation_handler:
@@ -53,6 +56,7 @@ def query_reply(event, query, binding):
 
 
 def build_rich_menu(use_old=False):
+    global rich_menu_id
 
     # del old menus
     if not use_old:
@@ -91,6 +95,45 @@ def build_rich_menu(use_old=False):
 
     else:
         # reuse old rich menu
-        rich_menu_id = 'richmenu-f72203c3d17a6f3eca7b3df839561bbf'
+        pass
 
     return rich_menu_id
+
+
+def add_user(user_id):
+    global rich_menu_id
+    user_name = utils.line_bot_api.get_profile(user_id).display_name
+
+    try:
+
+        utils.line_bot_api.link_rich_menu_to_user(
+            user_id, build_rich_menu(use_old=True))
+
+    except LineBotApiError:
+        rich_menu_id = build_rich_menu(use_old=False)
+
+        for user in utils.user_list:
+            utils.line_bot_api.link_rich_menu_to_user(
+                user, rich_menu_id)
+
+    utils.user_list[user_id] = {
+        "name": user_name,
+        "query_table": {}
+    }
+    save_user_list()
+
+    # push welcome message
+    utils.line_bot_api.push_message(user_id, TextSendMessage(
+        text='Hello, {}！'.format(user_name)))
+    utils.line_bot_api.push_message(
+        user_id, TextSendMessage(text='這是一個會根據您的設定，自動回應訊息的機器人'))
+    utils.line_bot_api.push_message(
+        user_id, TextSendMessage(text='在選單中選擇「加入對應」加入第一個關鍵字吧'))
+
+
+def remove_user(user_id):
+    utils.line_bot_api.unlink_rich_menu_from_user(user_id)
+
+    if user_id in utils.user_list:
+        utils.user_list.pop(user_id)
+    save_user_list()

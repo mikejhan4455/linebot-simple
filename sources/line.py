@@ -3,11 +3,11 @@ import re
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import (
     TextMessage, TextSendMessage, MessageEvent, TemplateSendMessage, ConfirmTemplate, PostbackAction, PostbackEvent,
-    StickerSendMessage, FollowEvent, UnfollowEvent, StickerMessage, AudioSendMessage
+    StickerSendMessage, FollowEvent, UnfollowEvent, StickerMessage
 )
 import flask
 
-from utils.utils import build_rich_menu, load_user_list, save_user_list, operation_handler, query_reply
+from utils.utils import load_user_list, save_user_list, operation_handler, query_reply, add_user, remove_user
 from utils import app, line_bot_api, handler
 import utils
 
@@ -62,16 +62,18 @@ handlers = {}
 
 
 @handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
+def handle_text(event):
     global handlers
     if event.message.type == 'text':
 
         user_id = event.source.user_id
 
         if user_id == 'Udeadbeefdeadbeefdeadbeefdeadbeef':
-            line_bot_api.reply_message(event.reply_token,
-                                           TextSendMessage(text='reply the webhook varification'))
-            return 
+            # validation event, skip
+            return 0
+
+        if user_id not in utils.user_list:
+            add_user(user_id)
 
         user_text = event.message.text
         query_table = utils.user_list[user_id]['query_table']
@@ -177,7 +179,7 @@ def handle_message(event):
 @handler.add(MessageEvent, message=StickerMessage)
 def handler_sticker(event):
     line_bot_api.reply_message(event.reply_token,
-    StickerSendMessage(package_id='3', sticker_id='189'))
+                               StickerSendMessage(package_id='3', sticker_id='189'))
 
 
 @handler.add(PostbackEvent)
@@ -228,37 +230,18 @@ def handle_postback(event):
 @handler.add(FollowEvent)
 def handle_follow(event):
     user_id = event.source.user_id
-    user_name = line_bot_api.get_profile(user_id).display_name
-
-    line_bot_api.link_rich_menu_to_user(
-        user_id, build_rich_menu(use_old=True))
-
-    utils.user_list[user_id] = {
-        "name": user_name,
-        "query_table": {}
-    }
-    save_user_list()
-
-    # push welcome message
-    line_bot_api.push_message(user_id, TextSendMessage(
-        text='Hello, {}！'.format(user_name)))
-    line_bot_api.push_message(
-        user_id, TextSendMessage(text='這是一個會根據您的設定，自動回應訊息的機器人'))
-    line_bot_api.push_message(
-        user_id, TextSendMessage(text='在選單中選擇「加入對應」加入第一個關鍵字吧'))
+    add_user(user_id)
 
 
 @handler.add(UnfollowEvent)
 def handle_unfollow(event):
     user_id = event.source.user_id
 
-    line_bot_api.unlink_rich_menu_from_user(user_id)
-
-    if user_id in utils.user_list:
-        utils.user_list.pop(user_id)
     if user_id in handlers:
         handlers.pop(user_id)
-    save_user_list()
+
+    remove_user(user_id)
+
 
 if __name__ == '__main__':
     load_user_list()

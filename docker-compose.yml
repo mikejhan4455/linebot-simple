@@ -15,7 +15,7 @@ services:
         depends_on:
             - "ngrok-server"
 
-        network_mode: "container:ngrok-server"
+        network_mode: "service:ngrok-server"
 
     ngrok-server:
         container_name: ngrok-server
